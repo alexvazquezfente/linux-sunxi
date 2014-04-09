@@ -22,6 +22,8 @@
 #include <mach/includes.h>
 #include "sunxi_physmem_i.h"
 
+#include <linux/dma-mapping.h>
+
 #define	BUFFER_PADDR			SW_VE_MEM_BASE
 #define	BUFFER_VADDR			BUFFER_PADDR
 #define	BUFFER_SIZE			SW_VE_MEM_SIZE
@@ -34,6 +36,14 @@
 
 #define SW_VE_MEM_BASE                    (PLAT_PHYS_OFFSET + SZ_64M)
 #define SW_VE_MEM_SIZE                    (SZ_64M)
+
+
+#ifdef CONFIG_CMA
+static void *ve_start_virt;
+#endif
+
+extern unsigned long ve_start;
+
 
 static struct sunxi_mem_allocator	*g_allocator = NULL;
 static DEFINE_SPINLOCK(sunxi_memlock);
@@ -299,6 +309,25 @@ int __init sunxi_mem_allocator_init(void)
 		SXM_ERR("%s err: out of memory, line %d\n", __func__, __LINE__);
 		return -ENOMEM;
 	}
+	
+#ifdef CONFIG_CMA
+  resource_size_t pa;
+  buf_size = 80 * SZ_1M;
+  ve_start_virt = dma_alloc_coherent(NULL, buf_size, &pa, GFP_KERNEL | GFP_DMA);
+  
+  ve_start = pa;
+  if (ve_start + buf_size > SW_PA_SDRAM_START + SZ_256M) {
+    printk(KERN_NOTICE "cedar: buffer is above 256MB limit\n");
+    dma_free_coherent(NULL, buf_size, ve_start_virt, ve_start);
+    ve_start_virt = 0;
+    buf_size = 0;
+    return -ENODEV;
+  }
+	
+#else
+  printk(KERN_NOTICE "[sunxi_mem dev] CMA is not available\n");
+  return -ENODEV
+#endif
 
 	g_allocator->init 	= sunxi_init;
 	g_allocator->deinit 	= sunxi_deinit;
@@ -311,9 +340,9 @@ int __init sunxi_mem_allocator_init(void)
 	g_allocator->find_free_block 	= sunxi_find_free_block;
 	g_allocator->free_list 		= sunxi_free_list;
 
-	if(0 != g_allocator->init(g_allocator, buf_size, buf_vaddr, buf_paddr)) {
+	if(0 != g_allocator->init(g_allocator, buf_size, ve_start_virt, pa)) {
 		SXM_ERR("%s err, line %d, size 0x%08x, vaddr 0x%08x, paddr 0x%08x\n",
-			__func__, __LINE__, buf_size, buf_vaddr, buf_paddr);
+			__func__, __LINE__, buf_size, ve_start_virt, pa);
 		return -ENOMEM;
 	}
 
