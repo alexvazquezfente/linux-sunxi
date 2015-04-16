@@ -121,6 +121,10 @@ static __u32 Hdmi_tv_mode_to_hdmi_mode(__disp_tv_mode_t mode)
 		return HDMI1080P_50;
 	case DISP_TV_MOD_1080P_60HZ:
 		return HDMI1080P_60;
+    case DISP_TV_MOD_1080P_25HZ:
+        return HDMI1080P_25;
+    case DISP_TV_MOD_1080P_30HZ:
+        return HDMI1080P_30;
 	case DISP_TV_MOD_1080P_24HZ_3D_FP:
 		return HDMI1080P_24_3D_FP;
 	case DISP_TV_MOD_720P_50HZ_3D_FP:
@@ -131,6 +135,7 @@ static __u32 Hdmi_tv_mode_to_hdmi_mode(__disp_tv_mode_t mode)
 		return HDMI1360_768_60;
 	case DISP_TV_MOD_H1280_V1024_60HZ:
 		return HDMI1280_1024_60;
+    
 	case DISP_TV_MODE_EDID:
 		if (!Device_Support_VIC[HDMI_EDID]) {
 			pr_err("EDID mode used without valid EDID info\n");

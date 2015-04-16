@@ -1308,7 +1308,9 @@ __u32 tv_mode_to_width(__disp_tv_mode_t mode)
 	case DISP_TV_MOD_1080I_60HZ:
 	case DISP_TV_MOD_1080P_24HZ:
 	case DISP_TV_MOD_1080P_50HZ:
-	case DISP_TV_MOD_1080P_60HZ:
+    case DISP_TV_MOD_1080P_60HZ:
+    case DISP_TV_MOD_1080P_25HZ:
+    case DISP_TV_MOD_1080P_30HZ:
 	case DISP_TV_MOD_1080P_24HZ_3D_FP:
 		width = 1920;
 		break;
@@ -1362,6 +1364,8 @@ __u32 tv_mode_to_height(__disp_tv_mode_t mode)
 	case DISP_TV_MOD_1080P_24HZ:
 	case DISP_TV_MOD_1080P_50HZ:
 	case DISP_TV_MOD_1080P_60HZ:
+    case DISP_TV_MOD_1080P_25HZ:
+    case DISP_TV_MOD_1080P_30HZ:
 		height = 1080;
 		break;
 	case DISP_TV_MOD_1080P_24HZ_3D_FP:
