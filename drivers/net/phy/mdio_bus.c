@@ -439,8 +439,86 @@ phy_id_show(struct device *dev, struct device_attribute *attr, char *buf)
     return sprintf(buf, "0x%.8lx\n", (unsigned long)phydev->phy_id);
 }
 
+static ssize_t
+mdio_reg_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+   struct phy_device *phydev = to_phy_device(dev);
+   struct mii_bus* bus = phydev->bus;
+   int regnum;
+   int val;
+
+   if (sscanf(attr->attr.name, "%d", &regnum) != 1)
+       return -EINVAL;
+
+   val = mdiobus_read(bus, phydev->addr, regnum);
+   if (val < 0)
+       return -EIO;
+
+   return sprintf(buf, "0x%.4x\n", val);
+}
+
+static ssize_t
+mdio_reg_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+{
+   struct phy_device *phydev = to_phy_device(dev);
+   struct mii_bus* bus = phydev->bus;
+   int regnum;
+   int val;
+   int err;
+
+   if (sscanf(attr->attr.name, "%d", &regnum) != 1)
+       return -EINVAL;
+
+   if (sscanf(buf, "%d", &val) != 1)
+       return -EINVAL;
+
+   if (val < 0 || val > 0xffff)
+       return -EINVAL;
+
+   err = mdiobus_write(bus, phydev->addr, regnum, val);
+   if (err < 0)
+       return -EIO;
+
+   return size;
+}
+
+#define MDIO_REG(_name) __ATTR(_name, (S_IWUSR | S_IRUGO), mdio_reg_show, mdio_reg_store)
+
+
 static struct device_attribute mdio_dev_attrs[] = {
     __ATTR_RO(phy_id),
+    MDIO_REG(0),
+    MDIO_REG(1),
+    MDIO_REG(2),
+    MDIO_REG(3),
+    MDIO_REG(4),
+    MDIO_REG(5),
+    MDIO_REG(6),
+    MDIO_REG(7),
+    MDIO_REG(8),
+    MDIO_REG(9),
+    MDIO_REG(10),
+    MDIO_REG(11),
+    MDIO_REG(12),
+    MDIO_REG(13),
+    MDIO_REG(14),
+    MDIO_REG(15),
+    MDIO_REG(16),
+    MDIO_REG(17),
+    MDIO_REG(18),
+    MDIO_REG(19),
+    MDIO_REG(20),
+    MDIO_REG(21),
+    MDIO_REG(22),
+    MDIO_REG(23),
+    MDIO_REG(24),
+    MDIO_REG(25),
+    MDIO_REG(26),
+    MDIO_REG(27),
+    MDIO_REG(28),
+    MDIO_REG(29),
+    MDIO_REG(30),
+    MDIO_REG(31),
     __ATTR_NULL
 };
 
